@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid()) @map("_id")
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
+model ServicePackage {
+  id          String   @id @default(uuid()) @map("_id")
+  name        String
+  category    String
+  description String
+  price       Float
+  featured    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryCategory {
+  id          String   @id @default(uuid()) @map("_id")
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  media       Media[]
+}
+
+model Booking {
+  id            String   @id @default(uuid()) @map("_id")
+  clientName    String
+  clientEmail   String
+  phone         String?
+  date          DateTime
+  packageJson   String
+  location      String
+  status        String   @default("pending")
+  depositPaid   Float    @default(0)
+  notes         String?
+  createdAt     DateTime @default(now())
+}
+
+model Media {
+  id           String          @id @default(uuid()) @map("_id")
+  vaultId      String?
+  title        String
+  type         String          // 'image' | 'video'
+  url          String
+  thumbnailUrl String?
+  categoryId   String?
+  category     GalleryCategory? @relation(fields: [categoryId], references: [id])
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime?
+}
+
+model Portfolio {
+  id                   String   @id @default(uuid()) @map("_id")
+  title                String
+  description          String?
+  category             String
+  imageUrls            String[] @default([])
+  cloudinaryPublicIds  String[] @default([])
+  imageUrl             String?
+  cloudinaryPublicId   String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime?
+}
+
+model ContactMessage {
+  id          String   @id @default(uuid()) @map("_id")
+  name        String
+  email       String
+  requestType String   @default("Inquiry")
+  projectType String?
+  date        DateTime?
+  service     String?
+  equipment   String?
+  contactInfo String?
+  message     String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ClientVault {
+  id         String   @id @default(uuid()) @map("_id")
+  clientName String   @default("")
+  clientEmail String  @default("")
+  title      String   @default("")
+  fileUrl    String   @default("")
+  publicId   String   @default("")
+  category   String   @default("Photo Vault")
+  accessCode String?
+  clientId   String?
+  pinHash    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Invoice {
+  id        String   @id @default(uuid()) @map("_id")
+  bookingId String
+  total     Float
+  pdfUrl    String?
+  paid      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
